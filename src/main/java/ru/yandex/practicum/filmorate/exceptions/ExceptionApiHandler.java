@@ -14,14 +14,12 @@ public class ExceptionApiHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorMessage> handleValidationException(ValidationException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(new ErrorMessage("/films", LocalDateTime.now())
-                , HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorMessage("/films", LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConditionsNotMetException.class)
     public ResponseEntity<ErrorMessage> handleConditionsNotMetException(ConditionsNotMetException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(new ErrorMessage("/films", LocalDateTime.now())
-                , HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorMessage("/films", LocalDateTime.now()), HttpStatus.NOT_FOUND);
     }
 }
