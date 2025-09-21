@@ -6,22 +6,18 @@ import lombok.Value;
 
 import java.time.LocalDate;
 
-
-/**
- * Film.
- */
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Film {
+public class User {
     Long id;
+    String email;
+    String login;
     String name;
-    String description;
-    LocalDate releaseDate;
-    Integer duration;
+    LocalDate birthday;
 
     public boolean isValid() {
-        return name != null && description != null
-                && releaseDate != null && duration != null;
+        return email != null && login != null
+                && name != null && birthday != null;
     }
 }
