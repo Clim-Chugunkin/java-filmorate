@@ -22,7 +22,7 @@ public class FilmController {
     public Collection<Film> getFilms() {
         return films.values();
     }
-    //POST request
+
     @PostMapping
     public Film addFilm(@RequestBody Film film) throws ValidationException {
         Film newFilm = film.toBuilder().id(getNextId()).build();
