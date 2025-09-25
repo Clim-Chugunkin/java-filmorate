@@ -1,16 +1,19 @@
-package ru.yandex.practicum.filmorate.exceptions;
+package ru.yandex.practicum.filmorate.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@ToString
 public class ErrorMessage {
     private final String path;
-    private final String error = "Internal Server Error";
-    private final int status = 500;
+    private final String error;
     private final LocalDateTime timestamp;
+    private final int status;
 
 }

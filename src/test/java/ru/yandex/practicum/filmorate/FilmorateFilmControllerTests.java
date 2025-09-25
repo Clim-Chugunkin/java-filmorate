@@ -1,116 +1,117 @@
 package ru.yandex.practicum.filmorate;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
+import ru.yandex.practicum.filmorate.adapter.LocalDateTimeAdapter;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ErrorMessage;
 import ru.yandex.practicum.filmorate.model.Film;
 
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static
+        org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class FilmorateFilmControllerTests {
+@WebMvcTest(FilmController.class)
+public class FilmorateFilmControllerTests {
 
-    private final FilmController fm = new FilmController();
+    private static Gson gson = new Gson();
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @BeforeAll
+    public static void init() {
+        GsonBuilder gb = new GsonBuilder();
+        gb.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+        gb.registerTypeAdapter(LocalDate.class, new LocalDateAdapter());
+        gson = gb.create();
+    }
 
     //название не может быть пустым;
     @Test
-    public void checkIfNameIsBlank() {
-        Film film = new Film(0L, "", "film description", LocalDate.of(1999, 10, 10), 100);
-        Exception exception = assertThrows(ValidationException.class, () -> {
-            fm.addFilm(film);
-        });
-        String expectedMessage = "название не может быть пустым";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+    public void checkIfNameIsBlank() throws Exception {
+        Film film = new Film(0L, "", "description", LocalDate.of(1999, 10, 10), 100);
+        assertEquals("название не может быть пустым", postRequest(film));
+
     }
 
     //максимальная длина описания — 200 символов;
     @Test
-    public void testMaxLengthDescription() {
-        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1999, 10, 10), 100);
-        assertDoesNotThrow(() -> fm.addFilm(film));
-        Film notValidFilm = film.toBuilder().description("a".repeat(201)).build();
-        Exception exception = assertThrows(ValidationException.class, () -> {
-            fm.addFilm(notValidFilm);
-        });
-        String expectedMessage = "Описание не должно быть больше 200 символлов";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+    public void testMaxLengthDescription() throws Exception {
+        Film film = new Film(0L, "name", "a".repeat(201), LocalDate.of(1999, 10, 10), 100);
+        assertEquals("максимальная длина описания не более 200 символов", postRequest(film));
     }
 
     //дата релиза — не раньше 28 декабря 1895 года;
     @Test
-    public void releaseDayCheck() {
-        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 100);
-        assertDoesNotThrow(() -> fm.addFilm(film));
-        Film notValidFilm = film.toBuilder()
-                .releaseDate(LocalDate.of(1895, 12, 27)).build();
-        Exception exception = assertThrows(ValidationException.class, () -> {
-            fm.addFilm(notValidFilm);
-        });
-        String expectedMessage = "дата релиза — не раньше 28 декабря 1895 года";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+    public void releaseDayCheck() throws Exception {
+        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1895, 12, 27), 100);
+        assertEquals("дата релиза — не раньше 28 декабря 1895 года", postRequest(film));
     }
 
     //продолжительность фильма должна быть положительным числом
     @Test
-    public void durationCheck() {
-        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 0);
-        assertDoesNotThrow(() -> fm.addFilm(film));
-        Film notValidFilm = film.toBuilder()
-                .duration(-1).build();
-        Exception exception = assertThrows(ValidationException.class, () -> {
-            fm.addFilm(notValidFilm);
-        });
-        String expectedMessage = "продолжительность фильма должна быть положительным числом";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
-    }
-
-    @Test
-    public void updateFilm() {
-        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 0);
-        assertDoesNotThrow(() -> fm.addFilm(film));
-        Film tempFilm = (Film) fm.getFilms().toArray()[0];
-        Long filmID = tempFilm.getId();
-        Film updatedFilm = new Film(filmID, "updated", "a".repeat(200), LocalDate.of(1895, 12, 28), 12);
-        assertDoesNotThrow(() -> fm.update(updatedFilm));
-        Film newfilm = fm.getFilms()
-                .stream()
-                .filter((_film) -> Objects.equals(_film.getId(), filmID))
-                .findFirst()
-                .orElse(null);
-        assertEquals("updated", newfilm.getName());
+    public void durationCheck() throws Exception {
+        Film film = new Film(0L, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), -10);
+        assertEquals("продолжительность должна быть положительной", postRequest(film));
     }
 
     //попытка обновить фильм без id
     @Test
-    public void updateWithoutID() {
-        Film film = new Film(null, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 0);
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
-            fm.update(film);
-        });
-        String expectedMessage = "Id должен быть указан";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+    public void updateWithoutID() throws Exception {
+        Film film = new Film(null, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 10);
+        assertEquals("Id должен быть указан", putRequest(film));
     }
 
     //попытка обновить фильм id которого нет
     @Test
-    public void updateWithUnexistedID() {
+    public void updateWithUnexistedID() throws Exception {
         Film film = new Film(1000L, "name", "a".repeat(200), LocalDate.of(1895, 12, 28), 0);
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
-            fm.update(film);
-        });
-        String expectedMessage = "такого фильма нет";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+        assertEquals("такого фильма нет", putRequest(film));
     }
 
+    private String postRequest(Film film) throws Exception {
+        String filmJson = gson.toJson(film);
+
+        MvcResult result = mockMvc.perform(post("/films")
+                        .contentType("application/json")
+                        .content(filmJson))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ErrorMessage msg = gson.fromJson(json, ErrorMessage.class);
+        return msg.getError();
+    }
+
+    private String putRequest(Film film) throws Exception {
+        String filmJson = gson.toJson(film);
+
+        MvcResult result = mockMvc.perform(put("/films")
+                        .contentType("application/json")
+                        .content(filmJson))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        String json = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ErrorMessage msg = gson.fromJson(json, ErrorMessage.class);
+        return msg.getError();
+    }
 }

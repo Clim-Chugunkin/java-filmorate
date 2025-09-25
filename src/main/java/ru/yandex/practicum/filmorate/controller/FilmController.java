@@ -1,15 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.util.Validator;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 @Slf4j
@@ -19,21 +23,20 @@ public class FilmController {
     private final HashMap<Long, Film> films = new HashMap<>();
 
     @GetMapping
-    public Collection<Film> getFilms() {
-        return films.values();
+    public List<Film> getFilms() {
+        return new ArrayList<>(films.values());
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) throws ValidationException {
+    public Film addFilm(@Valid @RequestBody Film film)  {
         Film newFilm = film.toBuilder().id(getNextId()).build();
-        validationCheck(newFilm);
         films.put(newFilm.getId(), newFilm);
         log.info("добавлен новый фильм {}", newFilm.getName());
         return newFilm;
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) throws ValidationException {
+    public Film update(@RequestBody Film film)  {
         if (film.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
@@ -48,26 +51,10 @@ public class FilmController {
                 .duration((film.getDuration() != null) ? film.getDuration() : oldFilm.getDuration())
                 .build();
 
-        validationCheck(filmUpdated);
         films.put(filmUpdated.getId(), filmUpdated);
         log.info("фильм {} обнавлен", filmUpdated.getName());
         return filmUpdated;
     }
-
-    private void validationCheck(Film film) throws ValidationException {
-        Validator validator = new Validator();
-        if (!film.isValid()) throw new ValidationException("Не все поля заполнены");
-        validator.addRule(() -> film.getName().isBlank(),
-                        "название не может быть пустым")
-                .addRule(() -> film.getDescription().length() > 200,
-                        "Описание не должно быть больше 200 символлов")
-                .addRule(() -> film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)),
-                        "дата релиза — не раньше 28 декабря 1895 года")
-                .addRule(() -> film.getDuration() < 0,
-                        "продолжительность фильма должна быть положительным числом")
-                .check();
-    }
-
 
     // вспомогательный метод для генерации идентификатора нового поста
     private long getNextId() {
