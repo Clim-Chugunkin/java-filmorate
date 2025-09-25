@@ -2,15 +2,10 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.util.Validator;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +23,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film)  {
+    public Film addFilm(@Valid @RequestBody Film film) {
         Film newFilm = film.toBuilder().id(getNextId()).build();
         films.put(newFilm.getId(), newFilm);
         log.info("добавлен новый фильм {}", newFilm.getName());
@@ -36,7 +31,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film)  {
+    public Film update(@RequestBody Film film) {
         if (film.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }

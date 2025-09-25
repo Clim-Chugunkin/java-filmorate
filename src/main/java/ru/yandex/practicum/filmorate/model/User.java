@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 
 import java.time.LocalDate;
@@ -17,7 +16,7 @@ public class User {
     Long id;
 
     @NotNull(message = "не указана почта")
-    @Email(message  = "почта указана неправильно")
+    @Email(message = "почта указана неправильно")
     String email;
 
     @NotNull(message = "не указан логин")

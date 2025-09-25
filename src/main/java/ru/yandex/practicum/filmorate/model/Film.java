@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.annotation.MinDate;

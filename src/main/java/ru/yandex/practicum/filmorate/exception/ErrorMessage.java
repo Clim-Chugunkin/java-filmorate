@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
