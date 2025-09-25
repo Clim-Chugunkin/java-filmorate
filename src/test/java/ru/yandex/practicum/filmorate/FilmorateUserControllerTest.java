@@ -77,7 +77,6 @@ public class FilmorateUserControllerTest {
     }
 
 
-
     //попытка обновить пользователя без id
     @Test
     public void updateWithoutID() throws Exception {
@@ -116,6 +115,7 @@ public class FilmorateUserControllerTest {
         ErrorMessage msg = gson.fromJson(json, ErrorMessage.class);
         return msg.getError();
     }
+
     private String putRequest(User user) throws Exception {
         String filmJson = gson.toJson(user);
 
@@ -128,7 +128,6 @@ public class FilmorateUserControllerTest {
         ErrorMessage msg = gson.fromJson(json, ErrorMessage.class);
         return msg.getError();
     }
-
 
 
 }
