@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 // аннтотация @Value подставляет всем полям модификаторы private final
 // и переопределяет методы equals, hashCode, toString
@@ -29,5 +31,15 @@ public class User {
     @NotNull(message = "не указана дата рождения")
     @Past(message = "дата рождения не может быть в будущем")
     LocalDate birthday;
+
+    Set<Long> friends = new HashSet<>();
+
+    public boolean addFriend(Long friendId) {
+        return friends.add(friendId);
+    }
+
+    public boolean removeFriend(Long friendId) {
+        return friends.remove(friendId);
+    }
 
 }

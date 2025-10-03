@@ -1,64 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-
+@RequiredArgsConstructor
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final HashMap<Long, Film> films = new HashMap<>();
+
+    private final FilmService filmService;
+
 
     @GetMapping
     public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.getFilms();
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        Film newFilm = film.toBuilder().id(getNextId()).build();
-        films.put(newFilm.getId(), newFilm);
-        log.info("добавлен новый фильм {}", newFilm.getName());
-        return newFilm;
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        if (film.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-        Film oldFilm = films.get(film.getId());
-        if (oldFilm == null) {
-            throw new ConditionsNotMetException("такого фильма нет");
-        }
-        Film filmUpdated = oldFilm.toBuilder()
-                .name((film.getName() != null) ? film.getName() : oldFilm.getName())
-                .description((film.getDescription() != null) ? film.getDescription() : oldFilm.getDescription())
-                .releaseDate((film.getReleaseDate() != null) ? film.getReleaseDate() : oldFilm.getReleaseDate())
-                .duration((film.getDuration() != null) ? film.getDuration() : oldFilm.getDuration())
-                .build();
-
-        films.put(filmUpdated.getId(), filmUpdated);
-        log.info("фильм {} обнавлен", filmUpdated.getName());
-        return filmUpdated;
+        return filmService.updateFilm(film);
     }
 
-    // вспомогательный метод для генерации идентификатора нового поста
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    //PUT /films/{id}/like/{userId}  — пользователь ставит лайк фильму.
+    @PutMapping("/{filmId}/like/{userId}")
+    public Film setLike(@PathVariable Long filmId,
+                        @PathVariable Long userId) {
+        return filmService.setLike(filmId, userId);
     }
+
+    //DELETE /films/{id}/like/{userId}  — пользователь удаляет лайк
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public Film removeLike(@PathVariable Long filmId,
+                           @PathVariable Long userId) {
+        return filmService.removeLike(filmId, userId);
+    }
+
+    //GET /films/popular?count={count} — возвращает список из первых count фильмов по количеству лайков.
+    // Если значение параметра count не задано, верните первые 10.
+    @GetMapping("/popular")
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getPopular(count);
+    }
+
 
 }
