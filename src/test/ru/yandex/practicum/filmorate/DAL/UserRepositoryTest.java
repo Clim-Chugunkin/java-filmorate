@@ -33,7 +33,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void addAndGetListOfUsers(){
+    public void addAndGetListOfUsers() {
         User user1 = userStorage.addUser(User.builder()
                 .email("sergey@mail.ru")
                 .login("sergeylogin")
@@ -47,11 +47,11 @@ public class UserRepositoryTest {
                 .birthday(LocalDate.of(1985, 8, 10))
                 .build());
 
-        assertEquals(2,userStorage.getUsers().size());
+        assertEquals(2, userStorage.getUsers().size());
     }
 
     @Test
-    public void updateUserTest(){
+    public void updateUserTest() {
         User user = userStorage.addUser(User.builder()
                 .email("sergey@mail.ru")
                 .login("sergeylogin")
