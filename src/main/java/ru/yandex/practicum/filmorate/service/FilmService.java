@@ -2,69 +2,107 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.DAL.GenreRepository;
+import ru.yandex.practicum.filmorate.DAL.LikesRepository;
+import ru.yandex.practicum.filmorate.DAL.MpaRepository;
+import ru.yandex.practicum.filmorate.DAL.UserRepository;
+import ru.yandex.practicum.filmorate.DTO.FilmDTO;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final FilmStorage filmStorage;
-    private final UserService userService;
+    @Autowired
+    @Qualifier("filmRepository")
+    private FilmStorage filmStorage;
+    private final GenreRepository genreRepository;
+    private final MpaRepository mpaRepository;
+    private final LikesRepository likesRepository;
+    private final UserRepository userRepository;
 
-    public List<Film> getFilms() {
-        return filmStorage.getFilms();
+    public List<FilmDTO> getFilms() {
+        return filmStorage.getFilms().stream()
+                .map((film) -> film.toBuilder()
+                        .genres(genreRepository.getFilmGenres(film.getId())).build())
+                .toList();
     }
 
-    public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+    public FilmDTO addFilm(FilmDTO film) {
+        //проверка есть ли такой рейтинг
+
+        if (!mpaRepository.getAllMpa().contains(film.getMpa())) {
+            throw new ConditionsNotMetException("такого mpa нет");
+        }
+        FilmDTO newFilm = filmStorage.addFilm(film);
+        List<Genre> newFilmGenres = film.getGenres();
+
+        if (newFilmGenres == null) return newFilm;
+
+        //проверка есть ли такие жанры
+        if (!new HashSet<>(genreRepository.getAllGenres()).containsAll(newFilmGenres)) {
+            throw new ConditionsNotMetException("таких жанров нет");
+        }
+        newFilmGenres
+                .stream()
+                .distinct()
+                .forEach((genre) -> genreRepository.addAddGenreToFilm(newFilm.getId(), genre.getId()));
+        return getFilmById(newFilm.getId());
     }
 
-    public Film updateFilm(Film film) {
-        return filmStorage.update(film);
+    public FilmDTO updateFilm(FilmDTO film) {
+        FilmDTO oldFilm = filmStorage.getFilmById(film.getId());
+        FilmDTO updatedFilm = FilmDTO.builder()
+                .id(film.getId())
+                .name((film.getName() == null) ? oldFilm.getName() : film.getName())
+                .description((film.getDescription() == null) ? oldFilm.getDescription() : film.getDescription())
+                .releaseDate((film.getReleaseDate() == null) ? oldFilm.getReleaseDate() : film.getReleaseDate())
+                .duration((film.getDuration() == null) ? oldFilm.getDuration() : film.getDuration())
+                .mpa((film.getMpa() == null) ? oldFilm.getMpa() : film.getMpa())
+                .build();
+        return filmStorage.update(updatedFilm);
     }
 
-    public Film setLike(Long filmId, Long userId) {
+    public FilmDTO setLike(Long filmId, Long userId) {
         //проверяем наличие фильмы
-        Film film = getFilmById(filmId);
+        FilmDTO film = getFilmById(filmId);
         //проверяем есть ли пользователь с таким id
-        User user = userService.getUserById(userId);
-        film.addLike(userId);
+        User user = userRepository.getUserById(userId);
+        likesRepository.addLike(filmId, userId);
         log.info("пользователь {} поставил лаик фильму {}", user.getName(), film.getName());
         return film;
     }
 
-    public Film removeLike(Long filmId, Long userId) {
-        Film film = getFilmById(filmId);
+    public FilmDTO removeLike(Long filmId, Long userId) {
+        FilmDTO film = getFilmById(filmId);
         //проверяем есть ли пользователь с таким id
-        User user = userService.getUserById(userId);
-        film.removeLike(userId);
+        User user = userRepository.getUserById(userId);
+        likesRepository.deleteLike(userId, filmId);
         log.info("пользователь {} удалил лаик фильму {}", user.getName(), film.getName());
         return film;
+
     }
 
-    public List<Film> getPopular(int count) {
-        return filmStorage.getFilms()
-                .stream()
-                .sorted()
-                .limit(count)
-                .toList();
+    public List<Like> getPopular(int count) {
+        return likesRepository.getPopular(count);
     }
 
-    public Film getFilmById(Long id) {
-        return filmStorage
-                .getFilms()
-                .stream()
-                .filter((it) -> Objects.equals(it.getId(), id))
-                .findFirst()
-                .orElseThrow(() -> new ConditionsNotMetException("нет такого фильма"));
+    public FilmDTO getFilmById(Long id) {
+        FilmDTO film = filmStorage.getFilmById(id);
+        return film.toBuilder()
+                .genres(genreRepository.getFilmGenres(film.getId()))
+                .build();
     }
 
 

@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.DTO.FilmDTO;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -19,40 +20,43 @@ public class FilmController {
 
 
     @GetMapping
-    public List<Film> getFilms() {
+    public List<FilmDTO> getFilms() {
         return filmService.getFilms();
     }
 
+    @GetMapping("/{id}")
+    public FilmDTO getFilmById(@PathVariable long id) {
+        return filmService.getFilmById(id);
+    }
+
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
+    public FilmDTO addFilm(@Valid @RequestBody FilmDTO film) {
         return filmService.addFilm(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public FilmDTO update(@RequestBody FilmDTO film) {
         return filmService.updateFilm(film);
     }
 
     //PUT /films/{id}/like/{userId}  — пользователь ставит лайк фильму.
     @PutMapping("/{filmId}/like/{userId}")
-    public Film setLike(@PathVariable Long filmId,
-                        @PathVariable Long userId) {
+    public FilmDTO setLike(@PathVariable Long filmId,
+                           @PathVariable Long userId) {
         return filmService.setLike(filmId, userId);
     }
 
     //DELETE /films/{id}/like/{userId}  — пользователь удаляет лайк
     @DeleteMapping("/{filmId}/like/{userId}")
-    public Film removeLike(@PathVariable Long filmId,
-                           @PathVariable Long userId) {
+    public FilmDTO removeLike(@PathVariable Long filmId,
+                              @PathVariable Long userId) {
         return filmService.removeLike(filmId, userId);
     }
 
     //GET /films/popular?count={count} — возвращает список из первых count фильмов по количеству лайков.
     // Если значение параметра count не задано, верните первые 10.
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+    public List<Like> getPopular(@RequestParam(defaultValue = "10") int count) {
         return filmService.getPopular(count);
     }
-
-
 }

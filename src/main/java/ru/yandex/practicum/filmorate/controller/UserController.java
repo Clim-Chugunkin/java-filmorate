@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -46,7 +47,7 @@ public class UserController {
 
     //GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
     @GetMapping("/{userId}/friends")
-    public List<User> getFriends(@PathVariable Long userId) {
+    public List<Friends> getFriends(@PathVariable Long userId) {
         return userService.getFriends(userId);
     }
 
@@ -59,8 +60,8 @@ public class UserController {
 
     //GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
     @GetMapping("/{userId}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Long userId,
-                                       @PathVariable Long otherId) {
+    public List<Friends> getCommonFriends(@PathVariable Long userId,
+                                          @PathVariable Long otherId) {
         return userService.getCommonFriends(userId, otherId);
     }
 }
