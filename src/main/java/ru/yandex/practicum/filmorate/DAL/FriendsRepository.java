@@ -11,8 +11,8 @@ import java.util.List;
 public class FriendsRepository extends BaseRepository<Friends> {
 
     private static final String ADD_NEW_FRIEND = "INSERT INTO friendship " +
-            "(user_id, friend_id, status_id) " +
-            "VALUES (?,?,?)";
+            "(user_id, friend_id) " +
+            "VALUES (?,?)";
 
     private static final String DELETE_FRIEND = "DELETE FROM friendship " +
             "WHERE user_id = ? AND friend_id = ?";
@@ -31,8 +31,7 @@ public class FriendsRepository extends BaseRepository<Friends> {
     public void addFriend(long userId, long friendId) {
         update(ADD_NEW_FRIEND,
                 userId,
-                friendId,
-                1);
+                friendId);
     }
 
     public int deleteFriend(long userId, long friendId) {

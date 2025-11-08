@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS status(
 CREATE TABLE IF NOT EXISTS friendship(
     user_id INTEGER REFERENCES users,
     friend_id INTEGER REFERENCES users,
-    status_id INTEGER REFERENCES status,
     PRIMARY KEY(user_id, friend_id)
 );
 
