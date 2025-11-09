@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.DAL;
+package ru.yandex.practicum.filmorate.DAL.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.DAL;
+package ru.yandex.practicum.filmorate.DAL.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public class LikesRepository extends BaseRepository<Like> {
+public class LikeRepository extends BaseRepository<Like> {
 
     private static final String ADD_LIKE = "INSERT INTO likes (user_id,film_id, like_date) " +
             " VALUES (?,?,?)";
@@ -21,7 +21,7 @@ public class LikesRepository extends BaseRepository<Like> {
             "ORDER BY likes_count DESC " +
             "LIMIT ?";
 
-    public LikesRepository(JdbcTemplate jdbc, RowMapper<Like> mapper) {
+    public LikeRepository(JdbcTemplate jdbc, RowMapper<Like> mapper) {
         super(jdbc, mapper);
     }
 

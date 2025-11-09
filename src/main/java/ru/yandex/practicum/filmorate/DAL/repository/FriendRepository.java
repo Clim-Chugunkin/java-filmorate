@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.DAL;
+package ru.yandex.practicum.filmorate.DAL.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Friends;
 import java.util.List;
 
 @Repository
-public class FriendsRepository extends BaseRepository<Friends> {
+public class FriendRepository extends BaseRepository<Friends> {
 
     private static final String ADD_NEW_FRIEND = "INSERT INTO friendship " +
             "(user_id, friend_id) " +
@@ -24,7 +24,7 @@ public class FriendsRepository extends BaseRepository<Friends> {
             "WHERE user_id = ? " +
             "AND friend_id in (SELECT friend_id FROM friendship WHERE user_id = ?)";
 
-    public FriendsRepository(JdbcTemplate jdbc, RowMapper<Friends> mapper) {
+    public FriendRepository(JdbcTemplate jdbc, RowMapper<Friends> mapper) {
         super(jdbc, mapper);
     }
 

@@ -10,8 +10,6 @@ import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.annotation.MinDate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -23,7 +21,7 @@ import java.util.Set;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Film implements Comparable<Film> {
+public class Film {
     Long id;
 
     @NotNull(message = "не указано название")
@@ -43,19 +41,4 @@ public class Film implements Comparable<Film> {
     Integer duration;
     Long rating;
 
-    Set<Long> likes = new HashSet<>();
-
-    public boolean addLike(Long userId) {
-        return likes.add(userId);
-    }
-
-    public boolean removeLike(Long userId) {
-
-        return likes.remove(userId);
-    }
-
-    @Override
-    public int compareTo(Film o) {
-        return o.getLikes().size() - likes.size();
-    }
 }

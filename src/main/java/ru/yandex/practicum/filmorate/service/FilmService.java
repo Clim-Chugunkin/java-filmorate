@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.DAL.GenreRepository;
-import ru.yandex.practicum.filmorate.DAL.LikesRepository;
-import ru.yandex.practicum.filmorate.DAL.MpaRepository;
-import ru.yandex.practicum.filmorate.DAL.UserRepository;
+import ru.yandex.practicum.filmorate.DAL.repository.GenreRepository;
+import ru.yandex.practicum.filmorate.DAL.repository.LikeRepository;
+import ru.yandex.practicum.filmorate.DAL.repository.MpaRepository;
+import ru.yandex.practicum.filmorate.DAL.repository.UserRepository;
 import ru.yandex.practicum.filmorate.DTO.FilmDTO;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -29,7 +29,7 @@ public class FilmService {
     private FilmStorage filmStorage;
     private final GenreRepository genreRepository;
     private final MpaRepository mpaRepository;
-    private final LikesRepository likesRepository;
+    private final LikeRepository likesRepository;
     private final UserRepository userRepository;
 
     public List<FilmDTO> getFilms() {

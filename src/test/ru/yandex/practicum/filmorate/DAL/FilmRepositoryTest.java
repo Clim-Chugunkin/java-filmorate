@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
+import ru.yandex.practicum.filmorate.DAL.repository.MpaRepository;
 import ru.yandex.practicum.filmorate.DTO.FilmDTO;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @JdbcTest
 @ComponentScan("ru.yandex.practicum.filmorate")
 @RequiredArgsConstructor
-class FilmRepositoryTest {
+public class FilmRepositoryTest {
 
     @Autowired
     @Qualifier("filmRepository")

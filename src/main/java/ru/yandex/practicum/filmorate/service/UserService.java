@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.DAL.FriendsRepository;
+import ru.yandex.practicum.filmorate.DAL.repository.FriendRepository;
 import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -21,7 +21,7 @@ public class UserService {
     @Autowired
     @Qualifier("userRepository")
     private UserStorage userStorage;
-    private final FriendsRepository friendsRepository;
+    private final FriendRepository friendsRepository;
 
     public List<User> getUsers() {
         return userStorage.getUsers();
