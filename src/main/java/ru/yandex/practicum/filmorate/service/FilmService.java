@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -33,9 +34,11 @@ public class FilmService {
     private final UserRepository userRepository;
 
     public List<FilmDTO> getFilms() {
+
+        HashMap<Long, List<Genre>> filmWithGenres = genreRepository.getFilmsGenres();
         return filmStorage.getFilms().stream()
                 .map((film) -> film.toBuilder()
-                        .genres(genreRepository.getFilmGenres(film.getId())).build())
+                        .genres(filmWithGenres.get(film.getId())).build())
                 .toList();
     }
 

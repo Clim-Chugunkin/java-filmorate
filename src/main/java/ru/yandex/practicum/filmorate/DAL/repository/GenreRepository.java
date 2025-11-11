@@ -3,9 +3,13 @@ package ru.yandex.practicum.filmorate.DAL.repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.DAL.mapper.FilmGenreRowMapper;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -19,6 +23,7 @@ public class GenreRepository extends BaseRepository<Genre> {
     private static final String GET_GENRE_BY_ID = "SELECT * FROM genre WHERE genre_id = ?";
     private static final String ADD_GENRE_TO_FILM = "INSERT INTO films_genres" +
             "(film_id,genre_id) VALUES (?,?)";
+    private static final String GET_ALL_FILMS_GENRES = "SELECT * FROM films_genres";
 
 
     public GenreRepository(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
@@ -42,5 +47,19 @@ public class GenreRepository extends BaseRepository<Genre> {
     public Genre getGenreById(long id) {
         return findOne(GET_GENRE_BY_ID, id)
                 .orElseThrow(() -> new ConditionsNotMetException("такого жанра нет"));
+    }
+
+    public HashMap<Long, List<Genre>> getFilmsGenres() {
+        List<FilmGenre> filmsList = jdbc.query(GET_ALL_FILMS_GENRES, new FilmGenreRowMapper());
+        HashMap<Long, List<Genre>> filmWithGenres = new HashMap<>();
+        filmsList.forEach((filmsGenres) -> {
+            Long filmId = filmsGenres.getFilmId();
+            Long genreId = filmsGenres.getGenreId();
+            if (!filmWithGenres.containsKey(filmId)) {
+                filmWithGenres.put(filmId, new ArrayList<>());
+            }
+            filmWithGenres.get(filmId).add(Genre.builder().id(genreId).build());
+        });
+        return filmWithGenres;
     }
 }
