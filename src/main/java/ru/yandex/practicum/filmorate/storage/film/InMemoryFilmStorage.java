@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.DTO.FilmDTO;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,19 +14,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
 
     @Override
-    public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    public List<FilmDTO> getFilms() {
+        return null;
     }
 
     @Override
-    public Film addFilm(Film film) {
-        Film newFilm = film.toBuilder().id(getNextId()).build();
-        films.put(newFilm.getId(), newFilm);
-        return newFilm;
+    public FilmDTO addFilm(FilmDTO film) {
+        //Film newFilm = film.toBuilder().id(getNextId()).build();
+        //films.put(newFilm.getId(), newFilm);
+        return null;
     }
 
     @Override
-    public Film update(Film film) {
+    public FilmDTO update(FilmDTO film) {
         if (film.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
@@ -42,7 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .build();
 
         films.put(filmUpdated.getId(), filmUpdated);
-        return filmUpdated;
+        return null;
     }
 
     // вспомогательный метод для генерации идентификатора нового поста
@@ -53,5 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    @Override
+    public FilmDTO getFilmById(long id) {
+        return null;
     }
 }

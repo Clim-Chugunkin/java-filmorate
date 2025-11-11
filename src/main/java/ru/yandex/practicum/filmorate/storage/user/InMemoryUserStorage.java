@@ -49,6 +49,11 @@ public class InMemoryUserStorage implements UserStorage {
         return userUpdated;
     }
 
+    @Override
+    public User getUserById(long id) {
+        return null;
+    }
+
     // вспомогательный метод для генерации идентификатора нового поста
     private long getNextId() {
         long currentMaxId = users.keySet()
